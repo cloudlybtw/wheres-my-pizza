@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Order struct {
-	ID              int        `json:"id"`
+	ID              int64      `json:"id"`
 	CreatedAt       time.Time  `json:"created_at"`
 	UpdatedAt       time.Time  `json:"updated_at"`
 	Number          string     `json:"number"`
@@ -19,7 +19,7 @@ type Order struct {
 }
 
 type OrderItem struct {
-	ID        int       `json:"id"`
+	ID        int64     `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	OrderID   int       `json:"order_id"`
 	Name      string    `json:"name"`
@@ -28,11 +28,11 @@ type OrderItem struct {
 }
 
 type OrderStatusLog struct {
-	ID        int       `json:"id"`
+	ID        int64     `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	OrderID   int       `json:"order_id"`
 	Status    string    `json:"status"`
-	ChangedBy time.Time `json:"changed_by"`
+	ChangedBy string    `json:"changed_by"`
 	ChangedAt time.Time `json:"changed_at"`
 	Notes     *string   `json:"notes,omitempty"`
 }
@@ -75,4 +75,35 @@ type StatusUpdateMessage struct {
 	ChangedBy           string    `json:"changed_by"`
 	Timestamp           time.Time `json:"timestamp"`
 	EstimatedCompletion time.Time `json:"estimated_completion"`
+}
+
+type OrderStatusResponse struct {
+	OrderNumber         string     `json:"order_number"`
+	CurrentStatus       string     `json:"current_status"`
+	UpdatedAt           time.Time  `json:"updated_at"`
+	EstimatedCompletion *time.Time `json:"estimated_completion,omitempty"`
+	ProcessedBy         *string    `json:"processed_by,omitempty"`
+}
+
+type OrderHistoryEntry struct {
+	Status    string    `json:"status"`
+	Timestamp time.Time `json:"timestamp"`
+	ChangedBy string    `json:"changed_by"`
+}
+
+type WorkerStatus struct {
+	WorkerName      string    `json:"worker_name"`
+	Status          string    `json:"status"`
+	OrdersProcessed int       `json:"orders_processed"`
+	LastSeen        time.Time `json:"last_seen"`
+}
+
+type Worker struct {
+	ID              int64     `json:"id"`
+	CreatedAt       time.Time `json:"created_at"`
+	Name            string    `json:"name"`
+	Type            string    `json:"type"`
+	Status          string    `json:"status"`
+	LastSeen        time.Time `json:"last_seen"`
+	OrdersProcessed int       `json:"orders_processed"`
 }
