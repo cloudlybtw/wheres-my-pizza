@@ -8,7 +8,6 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
-	"time"
 	"wheres-my-pizza/internal/kitchenworker/worker"
 	"wheres-my-pizza/pkg/config"
 	"wheres-my-pizza/pkg/logger"
@@ -49,23 +48,9 @@ func Main() {
 	defer cancel()
 
 	go func() {
-		backoff := time.Second
-		for {
-			if err := kitchenWorker.Start(ctx); err != nil {
-				logger.Error("startup-001", "worker_start_failed", "Worker stopped with error, retrying RabbitMQ connection", err)
-				// simple exponential backoff for reconnection
-				select {
-				case <-time.After(backoff):
-				case <-ctx.Done():
-					return
-				}
-				if backoff < time.Minute {
-					backoff *= 2
-				}
-				continue
-			}
-			// Start exited cleanly, no retry
-			return
+		if err := kitchenWorker.Start(ctx); err != nil {
+			logger.Error("startup-001", "worker_start_failed", "Failed to start worker", err)
+			log.Fatal(err)
 		}
 	}()
 
@@ -78,7 +63,6 @@ func Main() {
 	cancel()
 
 	kitchenWorker.Stop()
-	kitchenWorker.Wait()
 
 	logger.Info("shutdown-001", "graceful_shutdown", "Worker exiting", map[string]interface{}{})
 }
