@@ -94,7 +94,7 @@ func (s *Server) Start() error {
 		IdleTimeout:  60 * time.Second,
 	}
 
-	s.logger.Info("startup", "server_started", fmt.Sprintf("Tracking Service started on port %d", s.port), map[string]interface{}{})
+	s.logger.Info("startup-001", "server_started", fmt.Sprintf("Tracking Service started on port %d", s.port), map[string]interface{}{})
 	return s.httpServer.ListenAndServe()
 }
 

@@ -62,7 +62,7 @@ func (r *WorkerRegistration) RegisterWorker(workerName, workerType string, order
 		return fmt.Errorf("failed to register worker: %w", err)
 	}
 
-	r.logger.Info("startup", "worker_registered",
+	r.logger.Info("startup-001", "worker_registered",
 		fmt.Sprintf("Worker %s registered successfully with order types: %v", workerName, orderTypes), map[string]interface{}{})
 	return nil
 }
@@ -87,8 +87,6 @@ func (r *WorkerRegistration) MarkWorkerOffline(workerName string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	fmt.Println("Attempting to mark worker offline:", workerName) // Добавь лог до Exec
-
 	_, err := r.dbService.DbPool.Exec(ctx, `
         UPDATE workers 
         SET status = 'offline', last_seen = NOW() 
@@ -99,7 +97,7 @@ func (r *WorkerRegistration) MarkWorkerOffline(workerName string) error {
 		return fmt.Errorf("failed to mark worker offline: %w", err)
 	}
 
-	r.logger.Info("shutdown", "worker_offline",
+	r.logger.Info("shutdown-001", "worker_offline",
 		fmt.Sprintf("Worker %s marked as offline", workerName), map[string]interface{}{})
 	return nil
 }

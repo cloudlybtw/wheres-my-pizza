@@ -90,7 +90,7 @@ func (s *NotificationSubscriber) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to start consuming messages: %w", err)
 	}
 
-	s.logger.Info("startup", "subscriber_started", "Notification subscriber started successfully", map[string]interface{}{})
+	s.logger.Info("startup-001", "subscriber_started", "Notification subscriber started successfully", map[string]interface{}{})
 
 	// Process messages
 	for {

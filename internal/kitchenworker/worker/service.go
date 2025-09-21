@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 	"wheres-my-pizza/internal/kitchenworker/processor"
 	"wheres-my-pizza/internal/kitchenworker/statusupdate"
@@ -35,6 +36,7 @@ type KitchenWorker struct {
 	statusService     *statusupdate.StatusUpdateService
 	registration      *workerregistration.WorkerRegistration
 	stopChan          chan struct{}
+	wg                sync.WaitGroup
 }
 
 func NewKitchenWorker(workerName string, orderTypes []string, heartbeatInterval, prefetch int, cfg *config.Config, log *logger.Logger) *KitchenWorker {
@@ -130,6 +132,9 @@ func (w *KitchenWorker) consumeMessages(ctx context.Context) error {
 }
 
 func (w *KitchenWorker) processMessage(ctx context.Context, msg amqp.Delivery) {
+	w.wg.Add(1)
+	defer w.wg.Done()
+
 	requestID := fmt.Sprintf("msg-%d", time.Now().UnixNano())
 
 	// Parse the message
@@ -313,9 +318,9 @@ func (w *KitchenWorker) Stop() {
 
 	if w.registration != nil {
 		if err := w.registration.MarkWorkerOffline(w.workerName); err != nil {
-			w.logger.Error("shutdown", "mark_offline_failed", "Failed to mark worker offline", err)
+			w.logger.Error("shutdown-001", "mark_offline_failed", "Failed to mark worker offline", err)
 		} else {
-			w.logger.Info("shutdown", "mark_offline_success", fmt.Sprintf("Worker %s marked as offline", w.workerName), map[string]interface{}{})
+			w.logger.Info("shutdown-001", "mark_offline_success", fmt.Sprintf("Worker %s marked as offline", w.workerName), map[string]interface{}{})
 		}
 	}
 
@@ -323,9 +328,13 @@ func (w *KitchenWorker) Stop() {
 
 	if w.dbPool != nil {
 		w.dbPool.Close()
-		w.logger.Info("shutdown", "db_pool_closed", "Database pool closed successfully", map[string]interface{}{})
+		w.logger.Info("shutdown-001", "db_pool_closed", "Database pool closed successfully", map[string]interface{}{})
 	}
 
 	// Завершаем работу горутины
 	close(w.stopChan)
+}
+
+func (w *KitchenWorker) Wait() {
+	w.wg.Wait()
 }

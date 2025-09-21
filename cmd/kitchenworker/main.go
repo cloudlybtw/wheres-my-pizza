@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 	"wheres-my-pizza/internal/kitchenworker/worker"
 	"wheres-my-pizza/pkg/config"
 	"wheres-my-pizza/pkg/logger"
@@ -25,12 +26,12 @@ func Main() {
 	}
 
 	logger := logger.NewLogger("kitchen-worker")
-	logger.Info("startup", "service_started", "Kitchen Worker starting", map[string]interface{}{})
+	logger.Info("startup-001", "service_started", "Kitchen Worker starting", map[string]interface{}{})
 
 	// Load configuration
 	cfg, err := config.LoadConfig("config/config.yaml")
 	if err != nil {
-		logger.Error("startup", "config_load_failed", "Failed to load configuration", err)
+		logger.Error("startup-001", "config_load_failed", "Failed to load configuration", err)
 		log.Fatal(err)
 	}
 
@@ -48,9 +49,23 @@ func Main() {
 	defer cancel()
 
 	go func() {
-		if err := kitchenWorker.Start(ctx); err != nil {
-			logger.Error("startup", "worker_start_failed", "Failed to start worker", err)
-			log.Fatal(err)
+		backoff := time.Second
+		for {
+			if err := kitchenWorker.Start(ctx); err != nil {
+				logger.Error("startup-001", "worker_start_failed", "Worker stopped with error, retrying RabbitMQ connection", err)
+				// simple exponential backoff for reconnection
+				select {
+				case <-time.After(backoff):
+				case <-ctx.Done():
+					return
+				}
+				if backoff < time.Minute {
+					backoff *= 2
+				}
+				continue
+			}
+			// Start exited cleanly, no retry
+			return
 		}
 	}()
 
@@ -59,14 +74,11 @@ func Main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	logger.Info("shutdown", "graceful_shutdown", "Shutting down worker...", map[string]interface{}{})
-	<-quit
-	logger.Info("shutdown", "signal_received", "Shutdown signal received", map[string]interface{}{})
-	cancel()
-
+	logger.Info("shutdown-001", "graceful_shutdown", "Shutting down worker...", map[string]interface{}{})
 	cancel()
 
 	kitchenWorker.Stop()
+	kitchenWorker.Wait()
 
-	logger.Info("shutdown", "service_stopped", "Worker exiting", map[string]interface{}{})
+	logger.Info("shutdown-001", "graceful_shutdown", "Worker exiting", map[string]interface{}{})
 }
