@@ -42,5 +42,4 @@ func Main() {
 	nsub.Stop()
 
 	logger.Info("shutdown-001", "service_stopped", "Subscriber exiting", map[string]interface{}{})
-
 }
