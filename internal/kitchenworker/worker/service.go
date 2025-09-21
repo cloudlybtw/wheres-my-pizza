@@ -113,7 +113,7 @@ func (w *KitchenWorker) consumeMessages(ctx context.Context) error {
 	}
 
 	w.logger.Info("startup", "consuming_started",
-		fmt.Sprintf("Started consuming messages from %s", queueName))
+		fmt.Sprintf("Started consuming messages from %s", queueName), map[string]interface{}{})
 
 	// Message processing loop
 	for {
@@ -315,7 +315,7 @@ func (w *KitchenWorker) Stop() {
 		if err := w.registration.MarkWorkerOffline(w.workerName); err != nil {
 			w.logger.Error("shutdown", "mark_offline_failed", "Failed to mark worker offline", err)
 		} else {
-			w.logger.Info("shutdown", "mark_offline_success", fmt.Sprintf("Worker %s marked as offline", w.workerName))
+			w.logger.Info("shutdown", "mark_offline_success", fmt.Sprintf("Worker %s marked as offline", w.workerName), map[string]interface{}{})
 		}
 	}
 
@@ -323,7 +323,7 @@ func (w *KitchenWorker) Stop() {
 
 	if w.dbPool != nil {
 		w.dbPool.Close()
-		w.logger.Info("shutdown", "db_pool_closed", "Database pool closed successfully")
+		w.logger.Info("shutdown", "db_pool_closed", "Database pool closed successfully", map[string]interface{}{})
 	}
 
 	// Завершаем работу горутины

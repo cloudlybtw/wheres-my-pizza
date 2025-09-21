@@ -25,7 +25,7 @@ func Main() {
 	}
 
 	logger := logger.NewLogger("kitchen-worker")
-	logger.Info("startup", "service_started", "Kitchen Worker starting")
+	logger.Info("startup", "service_started", "Kitchen Worker starting", map[string]interface{}{})
 
 	// Load configuration
 	cfg, err := config.LoadConfig("config/config.yaml")
@@ -59,14 +59,14 @@ func Main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	logger.Info("shutdown", "graceful_shutdown", "Shutting down worker...")
+	logger.Info("shutdown", "graceful_shutdown", "Shutting down worker...", map[string]interface{}{})
 	<-quit
-	logger.Info("shutdown", "signal_received", "Shutdown signal received")
+	logger.Info("shutdown", "signal_received", "Shutdown signal received", map[string]interface{}{})
 	cancel()
 
 	cancel()
 
 	kitchenWorker.Stop()
 
-	logger.Info("shutdown", "service_stopped", "Worker exiting")
+	logger.Info("shutdown", "service_stopped", "Worker exiting", map[string]interface{}{})
 }

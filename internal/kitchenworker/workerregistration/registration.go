@@ -63,7 +63,7 @@ func (r *WorkerRegistration) RegisterWorker(workerName, workerType string, order
 	}
 
 	r.logger.Info("startup", "worker_registered",
-		fmt.Sprintf("Worker %s registered successfully with order types: %v", workerName, orderTypes))
+		fmt.Sprintf("Worker %s registered successfully with order types: %v", workerName, orderTypes), map[string]interface{}{})
 	return nil
 }
 
@@ -100,7 +100,7 @@ func (r *WorkerRegistration) MarkWorkerOffline(workerName string) error {
 	}
 
 	r.logger.Info("shutdown", "worker_offline",
-		fmt.Sprintf("Worker %s marked as offline", workerName))
+		fmt.Sprintf("Worker %s marked as offline", workerName), map[string]interface{}{})
 	return nil
 }
 
