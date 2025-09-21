@@ -36,6 +36,17 @@ CREATE TABLE IF NOT EXISTS order_status_log (
     notes TEXT
     );
 
+    create table  IF NOT EXISTS workers (
+    id              serial      primary key,
+    created_at        timestamptz not null    default now(),
+    name              text        unique not null,
+    type              text        not null,
+     order_types TEXT,
+    status            text        default 'online',
+    last_seen         timestamptz default current_timestamp,
+    orders_processed  integer     default 0
+);
+
 
 -- Indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_orders_number ON orders(number);

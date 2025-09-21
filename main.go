@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
 	"wheres-my-pizza/cmd/orderservice"
+	"wheres-my-pizza/cmd/kitchenworker"
 )
 
 func main() {
@@ -42,6 +42,7 @@ func main() {
 	case "order-service":
 		orderservice.Main()
 	case "kitchen-worker":
+		kitchenworker.Main()
 	case "tracking-service":
 	case "notification-subscriber":
 	default:
