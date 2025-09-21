@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"wheres-my-pizza/cmd/orderservice"
 	"wheres-my-pizza/cmd/kitchenworker"
+	"wheres-my-pizza/cmd/orderservice"
+	"wheres-my-pizza/cmd/trackingservice"
 )
 
 func main() {
@@ -44,6 +45,7 @@ func main() {
 	case "kitchen-worker":
 		kitchenworker.Main()
 	case "tracking-service":
+		trackingservice.Main()
 	case "notification-subscriber":
 	default:
 		fmt.Printf("Invalid mode: %s\n", mode)
