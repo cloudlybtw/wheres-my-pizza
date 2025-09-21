@@ -1,24 +1,58 @@
 package trackingservice
 
 import (
+	"context"
+	"flag"
 	"log"
-	"wheres-my-pizza/internal/trackingservice/service"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+	"wheres-my-pizza/cmd/trackingservice/server"
 	"wheres-my-pizza/pkg/config"
 	"wheres-my-pizza/pkg/logger"
 )
 
-func main() {
-	// Загрузка конфигурации
-	cfg, err := config.LoadConfig("config.yaml")
+func Main() {
+	port := flag.Int("port", 3002, "HTTP port for the API")
+	flag.Parse()
+
+	logger := logger.NewLogger("tracking-service")
+	logger.Info("startup", "service_started", "Tracking Service starting", map[string]interface{}{})
+
+	// Load configuration
+	cfg, err := config.LoadConfig("config/config.yaml")
 	if err != nil {
-		log.Fatalf("Ошибка при загрузке конфигурации: %v", err)
+		logger.Error("startup", "config_load_failed", "Failed to load configuration", err)
+		log.Fatal(err)
 	}
 
-	// Инициализация логгера
-	log := logger.NewLogger()
+	// Create server
+	srv := server.NewServer(*port, cfg, logger)
 
-	// Запуск сервиса отслеживания
-	if err := service.StartTrackingService(cfg, log); err != nil {
-		log.Fatalf("Ошибка при запуске сервиса: %v", err)
+	// Start server in a goroutine
+	go func() {
+		if err := srv.Start(); err != nil && err != http.ErrServerClosed {
+			logger.Error("startup", "server_start_failed", "Failed to start server", err)
+			log.Fatal(err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	logger.Info("shutdown", "graceful_shutdown", "Shutting down server...", map[string]interface{}{})
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Error("shutdown", "shutdown_failed", "Server forced to shutdown", err)
+		log.Fatal(err)
 	}
+
+	logger.Info("shutdown", "service_stopped", "Server exiting", map[string]interface{}{})
 }

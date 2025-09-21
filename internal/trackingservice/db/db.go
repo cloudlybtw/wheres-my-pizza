@@ -1,4 +1,4 @@
-package db 
+package db
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
-
 
 type TrackingDB struct {
 	dbPool *pgxpool.Pool
