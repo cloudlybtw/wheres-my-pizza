@@ -53,5 +53,4 @@ func Main() {
 	}
 
 	logger.Info("shutdown", "service_stopped", "Server exiting")
-
 }
