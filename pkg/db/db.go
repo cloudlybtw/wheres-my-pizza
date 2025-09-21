@@ -11,6 +11,7 @@ import (
 )
 
 func ConnectDB(cfg *config.DatabaseConfig, log *logger.Logger) (*pgxpool.Pool, error) {
+	start := time.Now()
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
 
@@ -32,6 +33,6 @@ func ConnectDB(cfg *config.DatabaseConfig, log *logger.Logger) (*pgxpool.Pool, e
 		return nil, err
 	}
 
-	log.Info("startup", "db_connected", "Connected to PostgreSQL database")
+	log.Info("startup-001", "db_connected", "Connected to PostgreSQL database", map[string]interface{}{"duration-ms": time.Since(start).Milliseconds()})
 	return pool, nil
 }

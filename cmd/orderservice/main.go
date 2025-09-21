@@ -20,7 +20,6 @@ func Main() {
 	flag.Parse()
 
 	logger := logger.NewLogger("orderservice")
-	logger.Info("startup-001", "service_started", "Order Service started succesfully")
 
 	cfg, err := config.LoadConfig("config/config.yaml")
 	if err != nil {
@@ -42,7 +41,7 @@ func Main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	logger.Info("shutdown", "graceful_shutdown", "Shutting down server...")
+	logger.Info("shutdown", "graceful_shutdown", "Shutting down server...", map[string]interface{}{})
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -52,6 +51,6 @@ func Main() {
 		log.Fatal(err)
 	}
 
-	logger.Info("shutdown", "service_stopped", "Server exiting")
+	logger.Info("shutdown", "service_stopped", "Server exiting", map[string]interface{}{})
 
 }

@@ -9,14 +9,15 @@ import (
 )
 
 type LogEntry struct {
-	Timestamp string      `json:"timestamp"`
-	Level     string      `json:"level"`
-	Service   string      `json:"service"`
-	Action    string      `json:"action"`
-	Message   string      `json:"message"`
-	Hostname  string      `json:"hostname"`
-	RequestID string      `json:"request_id"`
-	Error     *ErrorEntry `json:"error,omitempty"`
+	Timestamp string                 `json:"timestamp"`
+	Level     string                 `json:"level"`
+	Service   string                 `json:"service"`
+	Action    string                 `json:"action"`
+	Message   string                 `json:"message"`
+	Hostname  string                 `json:"hostname"`
+	RequestID string                 `json:"request_id"`
+	Details   map[string]interface{} `json:"details"`
+	Error     *ErrorEntry            `json:"error,omitempty"`
 }
 
 type ErrorEntry struct {
@@ -37,12 +38,12 @@ func NewLogger(service string) *Logger {
 	}
 }
 
-func (l *Logger) Info(requestID, action, message string) {
-	l.log("INFO", requestID, action, message, nil)
+func (l *Logger) Info(requestID, action, message string, details map[string]interface{}) {
+	l.log("INFO", requestID, action, message, details, nil)
 }
 
 func (l *Logger) Debug(requestID, action, message string) {
-	l.log("DEBUG", requestID, action, message, nil)
+	l.log("DEBUG", requestID, action, message, map[string]interface{}{}, nil)
 }
 
 func (l *Logger) Error(requestID, action, message string, err error) {
@@ -57,10 +58,11 @@ func (l *Logger) Error(requestID, action, message string, err error) {
 		Msg:   err.Error(),
 		Stack: stack,
 	}
-	l.log("ERROR", requestID, action, message, errorEntry)
+
+	l.log("ERROR", requestID, action, message, map[string]interface{}{}, errorEntry)
 }
 
-func (l *Logger) log(level, requestID, action, message string, errorEntry *ErrorEntry) {
+func (l *Logger) log(level, requestID, action, message string, details map[string]interface{}, errorEntry *ErrorEntry) {
 	entry := LogEntry{
 		Timestamp: time.Now().UTC().Format(time.RFC3339),
 		Level:     level,
@@ -69,6 +71,7 @@ func (l *Logger) log(level, requestID, action, message string, errorEntry *Error
 		Message:   message,
 		Hostname:  l.hostname,
 		RequestID: requestID,
+		Details:   details,
 		Error:     errorEntry,
 	}
 

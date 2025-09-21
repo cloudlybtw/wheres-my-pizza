@@ -1,0 +1,5 @@
+package notificationservice
+
+func Main() {
+
+}

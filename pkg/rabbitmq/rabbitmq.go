@@ -17,6 +17,7 @@ type RabbitMQ struct {
 }
 
 func ConnectRabbitMQ(cfg *config.RabbitMQConfig, log *logger.Logger) (*RabbitMQ, error) {
+	start := time.Now()
 	connStr := fmt.Sprintf("amqp://%s:%s@%s:%d/",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port)
 
@@ -148,7 +149,7 @@ func ConnectRabbitMQ(cfg *config.RabbitMQConfig, log *logger.Logger) (*RabbitMQ,
 		return nil, err
 	}
 
-	log.Info("startup", "rabbitmq_connected", "Connected to RabbitMQ")
+	log.Info("startup-001", "rabbitmq_connected", "Connected to RabbitMQ", map[string]interface{}{"duration-ms": time.Since(start).Milliseconds()})
 	return &RabbitMQ{
 		Conn:    conn,
 		Channel: channel,

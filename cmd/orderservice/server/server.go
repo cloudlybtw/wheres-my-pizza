@@ -40,7 +40,6 @@ func (s *Server) Start() error {
 		return err
 	}
 	s.dbPool = pool
-	s.logger.Info("startup-001", "db_connected", "Connected to PostgreSQL database")
 
 	// Connect to RabbitMQ
 	rm, err := rabbitmq.ConnectRabbitMQ(&s.config.RabbitMQ, s.logger)
@@ -63,7 +62,7 @@ func (s *Server) Start() error {
 		IdleTimeout:  60 * time.Second,
 	}
 
-	s.logger.Info("startup-001", "server_started", fmt.Sprintf("Order Service started on port %d", s.port))
+	s.logger.Info("startup-001", "server_started", fmt.Sprintf("Order Service started on port %d", s.port), map[string]interface{}{"port": s.port, "max_concurrent": s.maxConcurrent})
 	return s.httpServer.ListenAndServe()
 }
 
