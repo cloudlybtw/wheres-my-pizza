@@ -306,16 +306,26 @@ func (w *KitchenWorker) setupQueues() error {
 }
 
 func (w *KitchenWorker) Stop() {
+	// Сначала помечаем работника как оффлайн
 	if w.rabbitMQ != nil {
 		w.rabbitMQ.Close()
 	}
-	if w.dbPool != nil {
-		w.dbPool.Close()
-	}
+
 	if w.registration != nil {
 		if err := w.registration.MarkWorkerOffline(w.workerName); err != nil {
 			w.logger.Error("shutdown", "mark_offline_failed", "Failed to mark worker offline", err)
+		} else {
+			w.logger.Info("shutdown", "mark_offline_success", fmt.Sprintf("Worker %s marked as offline", w.workerName))
 		}
 	}
+
+	// Закрываем RabbitMQ
+
+	if w.dbPool != nil {
+		w.dbPool.Close()
+		w.logger.Info("shutdown", "db_pool_closed", "Database pool closed successfully")
+	}
+
+	// Завершаем работу горутины
 	close(w.stopChan)
 }

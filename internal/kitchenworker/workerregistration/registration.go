@@ -87,12 +87,15 @@ func (r *WorkerRegistration) MarkWorkerOffline(workerName string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	fmt.Println("Attempting to mark worker offline:", workerName) // Добавь лог до Exec
+
 	_, err := r.dbService.DbPool.Exec(ctx, `
-		UPDATE workers 
-		SET status = 'offline', last_seen = NOW() 
-		WHERE name = $1
-	`, workerName)
+        UPDATE workers 
+        SET status = 'offline', last_seen = NOW() 
+        WHERE name = $1
+    `, workerName)
 	if err != nil {
+		fmt.Println("Error during update:", err) // Лог ошибки
 		return fmt.Errorf("failed to mark worker offline: %w", err)
 	}
 

@@ -60,8 +60,12 @@ func Main() {
 	<-quit
 
 	logger.Info("shutdown", "graceful_shutdown", "Shutting down worker...")
+	<-quit
+	logger.Info("shutdown", "signal_received", "Shutdown signal received")
+	cancel()
 
 	cancel()
+
 	kitchenWorker.Stop()
 
 	logger.Info("shutdown", "service_stopped", "Worker exiting")

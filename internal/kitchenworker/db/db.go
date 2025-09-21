@@ -48,7 +48,7 @@ func (d *KitchenDB) UpdateOrderStatusToReady(ctx context.Context, orderID int64,
 }
 
 func (d *KitchenDB) LogOrderStatus(ctx context.Context, orderID int64, status, changedBy, notes string) error {
-	d.logger.Debug("", "log_order_status", fmt.Sprintf("Logging status change for order %d to %s", orderID, status))
+	d.logger.Debug("", "log_orderUpdate its status to 'offline' in the workers table._status", fmt.Sprintf("Logging status change for order %d to %s", orderID, status))
 	_, err := d.DbPool.Exec(ctx, `
         INSERT INTO order_status_log (order_id, status, changed_by, notes) 
         VALUES ($1, $2, $3, $4)
@@ -80,3 +80,9 @@ func (d *KitchenDB) GetWorkerOrderTypes(ctx context.Context, workerName string) 
 
 	return strings.Split(orderTypesStr, ","), nil
 }
+
+// func (d *KitchenDB) GetAllWorkers(ctx context.Context, orderNumber string) (int64, error) {
+// 	var orderID int64
+// 	err := d.DbPool.QueryRow(ctx, "SELECT id FROM orders WHERE number = $1", orderNumber).Scan(&orderID)
+// 	return orderID, err
+// }
